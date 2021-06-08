@@ -8,20 +8,17 @@
 <div id="elem_course" class="content"></div>
 <script >
     course =('{{content|safe}}');
+    alert(course.slice(8450));
     //course = JSON.stringify(course)
-    course = course.replace(/\"\"\"\"/g, "\"\"")
+    /*course = course.replace(/\"\"\"\"/g, "\"\"")
     course = course.replace(/\"\"a:1/g, "\"a:1")
-    course = course.replace(/;}\"\"/, ";}\"")
+    course = course.replace(/;}\"\"/g, ";}\"")*/
     course = JSON.parse(course);
-    for (let item in course) {
+    for (let item in course){
         document.getElementById("elem_course").innerHTML += '<h1 >' + course[item].name + '</h1>' + '<br>';
-        for (let item2 in course[item].modules){
-            if(course[item].modules[item2].modname ==  "resource"){
+        for (let item2 in course[item].modules) {
+            if (course[item].modules[item2].modname == "resource" && course[item].modules[item2].contents[0].mimetype == "application/pdf") {
                 document.getElementById("elem_course").innerHTML += '<a href="' + course[item].modules[item2].url + '">' + '<h2 >' +
-                    course[item].modules[item2].name + '<br>' + '</a>';
-            }
-            if(course[item].modules[item2].modname ==  "assign"){
-                document.getElementById("elem_course").innerHTML += '<a href="">' + '<h2 >' +
                     course[item].modules[item2].name + '<br>' + '</a>';
             }
         }

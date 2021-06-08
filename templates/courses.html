@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block title %}
+    Список курсов
+{%endblock%}
+{% block content %}
+<div class="elem_course" id="content"></div>
+<script >
+    courses = ('{{content|safe}}')
+    //courses = courses.replace(/\/g, "\"")
+    //courses = courses.replace(/\"\"\"\"/g, "\"\"")
+    //courses = courses.replace(/\"\"a:1/g, "\"a:1")
+    //courses = courses.replace(/;}\"\"/g, ";}\"")
+    courses = JSON.parse(courses);
+    for (let item in courses){
+        let idnum = Number(courses[item].id)
+        let url = "/course/" + idnum;
+        document.getElementById("content").innerHTML +='<a href="' + url + '">' +
+        '<h2 >' + courses[item].fullname  + '<br>' + '</a>';
+    }
+
+</script >
+{%endblock%}
