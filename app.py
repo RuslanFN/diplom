@@ -55,16 +55,24 @@ def GetCourses():
     c = json.dumps(c)
     return render_template('courses.html', content=c)
 
-@app.route('/auth/', methods=['GET', 'POST'])
-def auth():
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
     if request.method == 'GET':
         return render_template('login.html')
     else:
+        print(str(request.form.get('login')))
+        print(str(request.form.get('password')))
         response = post(
             'https://eluniver.ugrasu.ru/login/token.php?username=' + str(request.form.get('login')) + '&password=' + str(request.form.get('password')) + '&service=moodle_mobile_app')
         response = response.json()
-        if 'description' in response:
+        print(str(request.form.get('login')))
+        print(str(request.form.get('password')))
+        if 'token' in response:
             moodle_api.KEY = response['token']
+            print(response['token'])
+        else:
+            print(response)
+            return '<h1>'+ response['error'] + '</h1>'
         return GetCourses()
 
 with app.test_request_context():
