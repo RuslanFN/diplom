@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block title %}
+    Авторизация
+{%endblock%}
+{% block content %}
+<div class="form_auth_block">
+  <div class="form_auth_block_content">
+    <p class="form_auth_block_head_text">Авторизация</p>
+    <form class="form_auth_style" action="#" method="post">
+      <label>Введите Ваш логин eluniver</label>
+      <input type="login" name="auth_email" placeholder="Введите Ваш логин" required >
+      <label>Введите Ваш пароль eluniver</label>
+      <input type="password" name="auth_pass" placeholder="Введите пароль" required >
+      <button class="form_auth_button" type="submit" name="form_auth_submit">Войти</button>
+    </form>
+  </div>
+</div>
+{%endblock%}

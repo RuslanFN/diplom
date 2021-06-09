@@ -1,7 +1,7 @@
-from flask import Flask, render_template, jsonify, url_for
+from flask import Flask, render_template, jsonify, url_for, request
 import moodle_api
 import json
-import ast
+from requests import get, post
 
 app = Flask(__name__)
 moodle_api.URL = "https://eluniver.ugrasu.ru/"
@@ -55,8 +55,22 @@ def GetCourses():
     c = json.dumps(c)
     return render_template('courses.html', content=c)
 
+@app.route('/auth/', methods=['GET', 'POST'])
+def auth():
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        response = post(
+            'https://eluniver.ugrasu.ru/login/token.php?username=' + str(request.form.get('login')) + '&password=' + str(request.form.get('password')) + '&service=moodle_mobile_app')
+        response = response.json()
+        if 'description' in response:
+            moodle_api.KEY = response['token']
+        return GetCourses()
+
 with app.test_request_context():
-    print(url_for('GetCourseRes', id=12))
+    response = post('https://eluniver.ugrasu.ru/login/token.php?username=frn1172b&password=Lnq134&service=moodle_mobile_app')
+    response = response.json()
+    print(response['token'])
 
 if __name__ == "__main__":
     app.run(debug=True)
