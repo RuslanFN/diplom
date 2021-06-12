@@ -5,11 +5,11 @@ from requests import get, post
 
 app = Flask(__name__)
 moodle_api.URL = "https://eluniver.ugrasu.ru/"
-moodle_api.KEY = "07b1af93609c52da25b89b043b456155"
+#moodle_api.KEY = "07b1af93609c52da25b89b043b456155"
 #course = moodle_api.call("core_course_get_contents", courseid=8026)
-@app.route('/json/courses')
-def jsonisator():
-    return jsonify(moodle_api.call("core_enrol_get_users_courses", userid=146024))
+@app.route('/json/courses/<id>')
+def jsonisator(id):
+    return jsonify(moodle_api.call("core_enrol_get_users_courses", userid=id))
 
 getuser = moodle_api.User()
 
@@ -60,6 +60,7 @@ def GetCourses():
         c.append(item)
 
     c = json.dumps(c)
+    c = c.replace(r'\"', '')
     return render_template('courses.html', content=c)
 
 @app.route('/login/', methods=['GET', 'POST'])
