@@ -1,8 +1,13 @@
-from flask import Flask, render_template, jsonify, url_for, request
-import moodle_api
 import json
-from requests import get, post
-from collections import namedtuple
+import os
+import random
+import string
+
+import flask
+from flask import Flask, render_template, jsonify, request
+from requests import post
+
+import moodle_api
 
 app = Flask(__name__)
 moodle_api.URL = "https://eluniver.ugrasu.ru/"
@@ -26,15 +31,19 @@ def pdf():
     if request.method == 'POST':
         url = request.form.get('link')
         print(url)
+
         response = post('https://' + url + '&token=' + moodle_api.KEY)
-        f = open('static/file.pdf', 'wb')
+        fileName = ''.join(random.choice(string.ascii_letters) for i in range(10))
+        while fileName in os.listdir():
+            fileName = ''.join(random.choice(string.ascii_letters) for i in range(10))
+        f = open('static/pdf/'+fileName+'.pdf', 'wb')
         f.write(response.content)
         f.close()
-    return render_template('viewPDF.html')
+    return flask.redirect('/pdfview/' + fileName)
 
-@app.route('/getpdffile')
-def getpdfile():
-    return render_template('viewPDF.html')
+@app.route('/pdfview/<fileName>')
+def pdfview(fileName):
+    return render_template('viewPDF.html', content=fileName)
 
 @app.route('/course/<id>')
 def GetCourseRes(id):
@@ -63,6 +72,7 @@ def GetCourseRes(id):
 @app.route('/')
 @app.route('/courses')
 def GetCourses():
+
     userid = (moodle_api.call('core_webservice_get_site_info')['userid'])
     courses = moodle_api.call("core_enrol_get_users_courses", userid=userid)
     c = []
@@ -96,9 +106,7 @@ def login():
         return GetCourses()
 
 with app.test_request_context():
-    response = post('https://eluniver.ugrasu.ru/login/token.php?username=frn1172b&password=Lnq134&service=moodle_mobile_app')
-    response = response.json()
-    print(response['token'])
+    print(os.listdir("static/pdf"))
 
 if __name__ == "__main__":
     app.run(debug=True)
