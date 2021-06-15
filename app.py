@@ -2,16 +2,16 @@ from flask import Flask, render_template, jsonify, url_for, request
 import moodle_api
 import json
 from requests import get, post
+from collections import namedtuple
 
 app = Flask(__name__)
 moodle_api.URL = "https://eluniver.ugrasu.ru/"
 #moodle_api.KEY = "07b1af93609c52da25b89b043b456155"
-#course = moodle_api.call("core_course_get_contents", courseid=8026)
+#course = moodle_api.call(" ", courseid=8026)
 @app.route('/json/courses/<id>')
 def jsonisator(id):
     return jsonify(moodle_api.call("core_enrol_get_users_courses", userid=id))
 
-getuser = moodle_api.User()
 
 @app.route('/json/courses2')
 def jsonisator3():
@@ -20,6 +20,21 @@ def jsonisator3():
 @app.route('/json/course/<id>')
 def jsonisator2(id):
     return jsonify(moodle_api.call("core_course_get_contents", courseid=id))
+
+@app.route('/pdf',  methods = ['POST'])
+def pdf():
+    if request.method == 'POST':
+        url = request.form.get('link')
+        print(url)
+        response = post('https://' + url + '&token=' + moodle_api.KEY)
+        f = open('static/file.pdf', 'wb')
+        f.write(response.content)
+        f.close()
+    return render_template('viewPDF.html')
+
+@app.route('/getpdffile')
+def getpdfile():
+    return render_template('viewPDF.html')
 
 @app.route('/course/<id>')
 def GetCourseRes(id):
@@ -40,14 +55,11 @@ def GetCourseRes(id):
         print(modules)
         del item['summary']
         c.append(item)
-    c = json.dumps(c)
+    c = json.dumps(c, ensure_ascii=True)
     #print(c)
     c = c.replace(r'\"', '')
-    return render_template('course.html', content =c )
+    return render_template('course.html', content =c, id = id )
 
-@app.route('/assign')
-def assign():
-    return render_template('assign.html')
 @app.route('/')
 @app.route('/courses')
 def GetCourses():

@@ -8,20 +8,29 @@
 <div id="elem_course" class="content"></div>
 <script >
     course =('{{content|safe}}');
-    alert(course.slice(8450));
-    //course = JSON.stringify(course)
-    /*course = course.replace(/\"\"\"\"/g, "\"\"")
-    course = course.replace(/\"\"a:1/g, "\"a:1")
-    course = course.replace(/;}\"\"/g, ";}\"")*/
+    //course = decodeURIComponent(course)
+    //alert(course.slice(0));
     course = JSON.parse(course);
+    function postreq(item, item2)
+    {
+        let url = course[item].modules[item2].contents[0].fileurl;
+        alert(url);
+        $.ajax({
+            url: '/pdf',
+            type: 'post',
+            data: {link: url},}
+        );
+    }
     for (let item in course){
         document.getElementById("elem_course").innerHTML += '<h1 >' + course[item].name + '</h1>' + '<br>';
         for (let item2 in course[item].modules) {
             if (course[item].modules[item2].modname == "resource" && course[item].modules[item2].contents[0].mimetype == "application/pdf") {
-                document.getElementById("elem_course").innerHTML += '<a href="' + course[item].modules[item2].url + '">' + '<h2 >' +
-                    course[item].modules[item2].name + '<br>' + '</a>';
+                url = course[item].modules[item2].contents[0].fileurl.replace("https://", "")
+                document.getElementById("elem_course").innerHTML +=
+               '<form action="/pdf" method="post">' +
+                 '<input type="hidden" name="link" value="' +  url + '"> <a href="#" onclick="document.forms[0].submit();return false;">' + course[item].modules[item2].name + '</a> </form>'
             }
         }
     }
-</script>
+</script> +
 {%endblock%}
