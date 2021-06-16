@@ -5,7 +5,7 @@
 {% block content %}
 <ul>
 {% for i in contents %}
-     <li class="beads"> {{i['name']}}</>
+     <li class="beads"> {{i['name']}}</li>
          <ul>
          {% for j in i['modules'] %}
             {% if j['modname'] == 'resource' and j['contents'][0]['mimetype'] == 'application/pdf' %}
