@@ -1,0 +1,54 @@
+.beads {
+list-style: none;
+background: #EEE3DB;
+margin: 0;
+padding-left: 40px;
+border-radius: 5px;
+}
+.beads li {
+text-transform: uppercase;
+font-family: 'Montserrat', sans-serif;
+line-height: 40px;
+border-bottom: 1px solid #D4D7D6;
+position: relative;
+}
+.beads a {
+text-decoration: none;
+color: #464643;
+display: block;
+line-height: 40px;
+position: relative;
+}
+.beads a:before {
+content:"";
+position: absolute;
+left: -20px;
+top: 6px;
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: #A58063;
+}
+.beads li:last-child {border-bottom: none;}
+.beads li:before,
+.beads li:after {
+content:"";
+position: absolute;
+border-radius: 50%;
+}
+.beads li:before {
+top: calc(50% - 5px);
+background: #E0926E;
+left: -22px;
+width: 10px;
+height: 10px;
+transition: 0.5s linear;
+}
+.beads li:after {
+bottom: 6px;
+left: -20px;
+width: 6px;
+height: 6px;
+background: #A58063;
+}
+.beads li:hover:before {background: #FFCE08;}

@@ -32,7 +32,7 @@ def pdf():
         url = request.form.get('link')
         print(url)
 
-        response = post('https://' + url + '&token=' + moodle_api.KEY)
+        response = post(url + '&token=' + moodle_api.KEY)
         fileName = ''.join(random.choice(string.ascii_letters) for i in range(10))
         while fileName in os.listdir():
             fileName = ''.join(random.choice(string.ascii_letters) for i in range(10))
@@ -48,43 +48,19 @@ def pdfview(fileName):
 @app.route('/course/<id>')
 def GetCourseRes(id):
     course = moodle_api.call("core_course_get_contents", courseid=id)
-    c = []
-    for item in course:
-        item = dict(item)
-        modules = []
-        for item2 in item['modules']:
-            item2 = dict(item2)
-            del item2['customdata']
-            del item2['onclick']
-            if 'description' in item2:
-                del item2['description']
-            modules.append(item2)
+    course = json.dumps(course)
+    course = json.loads(course)
+    return render_template('course.html',id = id, contents=course )
 
-        item['modules'] = modules
-        print(modules)
-        del item['summary']
-        c.append(item)
-    c = json.dumps(c, ensure_ascii=True)
-    #print(c)
-    c = c.replace(r'\"', '')
-    return render_template('course.html', content =c, id = id )
-
-@app.route('/')
 @app.route('/courses')
 def GetCourses():
-
     userid = (moodle_api.call('core_webservice_get_site_info')['userid'])
     courses = moodle_api.call("core_enrol_get_users_courses", userid=userid)
-    c = []
-    for item in courses:
-        item = dict(item)
-        del item['summary']
-        c.append(item)
+    courses = json.dumps(courses)
+    courses = json.loads(courses)
+    return render_template('courses.html', contents=courses)
 
-    c = json.dumps(c)
-    c = c.replace(r'\"', '')
-    return render_template('courses.html', content=c)
-
+@app.route('/')
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -103,7 +79,7 @@ def login():
         else:
             print(response)
             return '<h1>'+ response['error'] + '</h1>'
-        return GetCourses()
+        return flask.redirect('/courses')
 
 with app.test_request_context():
     print(os.listdir("static/pdf"))

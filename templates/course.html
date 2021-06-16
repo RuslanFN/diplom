@@ -3,34 +3,22 @@
     Мой курс
 {%endblock%}
 {% block content %}
+<ul>
+{% for i in contents %}
+     <li class="beads"> {{i['name']}}</>
+         <ul>
+         {% for j in i['modules'] %}
+            {% if j['modname'] == 'resource' and j['contents'][0]['mimetype'] == 'application/pdf' %}
+                 <li class="beads"><form action="/pdf" method="post">
+                  <input type="hidden" name="link" value="{{j['contents'][0]['fileurl']}}"></form>
+                  <a href="#" onclick="document.forms[0].submit();return false;">{{j['name']}}</a>
+                 </li>
+             {% endif %}
+        {% endfor %}
+         </ul>
+     </li>
+    </br>
+    {% endfor %}
+</ul>
 
-
-<div id="elem_course" class="content"></div>
-<script >
-    course =('{{content|safe}}');
-    //course = decodeURIComponent(course)
-    //alert(course.slice(0));
-    course = JSON.parse(course);
-    function postreq(item, item2)
-    {
-        let url = course[item].modules[item2].contents[0].fileurl;
-        alert(url);
-        $.ajax({
-            url: '/pdf',
-            type: 'post',
-            data: {link: url},}
-        );
-    }
-    for (let item in course){
-        document.getElementById("elem_course").innerHTML += '<h1 >' + course[item].name + '</h1>' + '<br>';
-        for (let item2 in course[item].modules) {
-            if (course[item].modules[item2].modname == "resource" && course[item].modules[item2].contents[0].mimetype == "application/pdf") {
-                url = course[item].modules[item2].contents[0].fileurl.replace("https://", "")
-                document.getElementById("elem_course").innerHTML +=
-               '<form action="/pdf" method="post">' +
-                 '<input type="hidden" name="link" value="' +  url + '"> <a href="#" onclick="document.forms[0].submit();return false;">' + course[item].modules[item2].name + '</a> </form>'
-            }
-        }
-    }
-</script> +
 {%endblock%}
