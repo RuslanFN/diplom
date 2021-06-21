@@ -2,6 +2,8 @@ import json
 import os
 import random
 import string
+import paramiko
+import time
 
 import flask
 from flask import Flask, render_template, jsonify, request
@@ -39,7 +41,39 @@ def pdf():
         f = open('static/pdf/'+fileName+'.pdf', 'wb')
         f.write(response.content)
         f.close()
-    return flask.redirect('/pdfview/' + fileName)
+    return transprt(fileName) #flask.redirect('/pdfview/' + fileName)
+
+def transprt(name):
+    host = "192.168.1.11"
+    port = 22
+    transport = paramiko.Transport((host, port))
+    transport.connect(username='ruslan', password='Lnq134')
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    remotepath =  'Общедоступные/' + name + '.pdf'
+    localpath = './static/pdf/' + name + '.pdf'
+
+    #sftp.get(remotepath, localpath)
+    sftp.put(localpath, remotepath)
+    sftp.close()
+    transport.close()
+
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username='ruslan', password='Lnq134', look_for_keys= False)
+    channel = client.invoke_shell()
+    #channel.get_pty()
+    #channel.settimeout(5)
+    #channel.exec_command('./bashscript')
+    #channel.send('Qwe321' + '\n')
+    channel.send(f'./bashscript {name}.pdf\n')
+    time.sleep(10)
+    out = channel.recv(1024)
+    print(out.decode())
+
+    channel.close()
+    client.close()
+    return flask.redirect('/pdfview/' + name)
 
 @app.route('/pdfview/<fileName>')
 def pdfview(fileName):
