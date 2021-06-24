@@ -1,17 +1,46 @@
-{% extends 'layout.html' %}
-{% block title %}
-    Авторизация
-{%endblock%}
-{% block content %}
-<script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script type="text/javascript" src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js?ver=1.6.4'></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <title>PDF Viewer</title>
+  </head>
+  <body>
+    <div class="top-bar">
+      <button class="btn" id="prev-page">
+        <i class="fas fa-arrow-circle-left"></i> Prev Page
+      </button>
+      <button class="btn" id="next-page">
+        Next Page <i class="fas fa-arrow-circle-right"></i>
+      </button>
+       <button class="btn" id="quit">
+        Закрыть
+      </button>
+      <span class="page-info">
+        Page <span id="page-num"></span> of <span id="page-count"></span>
+      </span>
+    </div>
 
-	$(window).on("beforeunload", function() {
+    <canvas id="pdf-render"></canvas>
+    <script>
+      document.body.path = "../static/pdf/{{content}}.pdf"
+      alert(document.body.path)
+    </script>
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+    <script src="../static/js/main.js"></script>
 
-		return ;
-
-	});
-</script>
-    <embed
-    src = "../static/pdf/{{content}}.pdf"
-    type = "application/pdf" width="100%" height="600px" />
-{%endblock%}
+  </body>
+</html>

@@ -31,7 +31,7 @@ def jsonisator2(id):
 @app.route('/pdf',  methods = ['POST'])
 def pdf():
     if request.method == 'POST':
-        url = request.form.get('link')
+        url = request.form['link']
         print(url)
 
         response = post(url + '&token=' + moodle_api.KEY)
@@ -57,7 +57,6 @@ def transprt(name):
     sftp.put(localpath, remotepath)
     sftp.close()
     transport.close()
-
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(host, username='ruslan', password='Lnq134', look_for_keys= False)
@@ -67,16 +66,58 @@ def transprt(name):
     #channel.exec_command('./bashscript')
     #channel.send('Qwe321' + '\n')
     channel.send(f'./bashscript {name}.pdf\n')
-    time.sleep(10)
+    time.sleep(3)
     out = channel.recv(1024)
     print(out.decode())
-
     channel.close()
     client.close()
-    return flask.redirect('/pdfview/' + name)
+    return name
+
+@app.route('/pdfnextpage',  methods = ['POST'])
+def pdfnextpage():
+    host = "192.168.1.11"
+    port = 22
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username='ruslan', password='Lnq134', look_for_keys=False)
+    channel = client.invoke_shell()
+    channel.send('./bashRight\n')
+    time.sleep(0.1)
+    channel.close()
+    client.close()
+    return 0
+
+@app.route('/pdfprevpage',  methods = ['POST'])
+def pdfprevpage():
+    host = "192.168.1.11"
+    port = 22
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username='ruslan', password='Lnq134', look_for_keys=False)
+    channel = client.invoke_shell()
+    channel.send('./bashLeft\n')
+    time.sleep(1)
+    channel.close()
+    client.close()
+    return 0
+
+@app.route('/pdfquit',  methods = ['POST'])
+def quit():
+    host = "192.168.1.11"
+    port = 22
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username='ruslan', password='Lnq134', look_for_keys=False)
+    channel = client.invoke_shell()
+    channel.send('./bashkill\n')
+    time.sleep(1)
+    channel.close()
+    client.close()
+    return 0
 
 @app.route('/pdfview/<fileName>')
 def pdfview(fileName):
+    filename = fileName + '.pdf'
     return render_template('viewPDF.html', content=fileName)
 
 @app.route('/course/<id>')
@@ -84,7 +125,7 @@ def GetCourseRes(id):
     course = moodle_api.call("core_course_get_contents", courseid=id)
     course = json.dumps(course)
     course = json.loads(course)
-    return render_template('course.html',id = id, contents=course )
+    return render_template('course.html',id = id, contents=course, count=0, count2=0)
 
 @app.route('/courses')
 def GetCourses():

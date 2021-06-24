@@ -52,3 +52,9 @@ height: 6px;
 background: #A58063;
 }
 .beads li:hover:before {background: #FFCE08;}
+
+.pdf{
+    min-height: 100vh;
+    position: absolute;
+    outline: none;
+}
