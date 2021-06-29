@@ -4,17 +4,26 @@ import random
 import string
 import paramiko
 import time
-
 import flask
 from flask import Flask, render_template, jsonify, request
 from requests import post
-
 import moodle_api
 
 app = Flask(__name__)
 moodle_api.URL = "https://eluniver.ugrasu.ru/"
 #moodle_api.KEY = "07b1af93609c52da25b89b043b456155"
 #course = moodle_api.call(" ", courseid=8026)
+def res(course):
+    fixcourse = []
+    for module in course:
+        x = []
+        for item in module['modules']:
+            if item['modname'] == 'resource' and item['contents'][0]['mimetype'] == 'application/pdf':
+                x.append(item)
+        if x != []:
+            fixcourse.append(module)
+    return fixcourse
+
 @app.route('/json/courses/<id>')
 def jsonisator(id):
     return jsonify(moodle_api.call("core_enrol_get_users_courses", userid=id))
@@ -36,7 +45,7 @@ def pdf():
 
         response = post(url + '&token=' + moodle_api.KEY)
         fileName = ''.join(random.choice(string.ascii_letters) for i in range(10))
-        while fileName in os.listdir():
+        while fileName in os.listdir("static/pdf"):
             fileName = ''.join(random.choice(string.ascii_letters) for i in range(10))
         f = open('static/pdf/'+fileName+'.pdf', 'wb')
         f.write(response.content)
@@ -82,10 +91,10 @@ def pdfnextpage():
     client.connect(host, username='ruslan', password='Lnq134', look_for_keys=False)
     channel = client.invoke_shell()
     channel.send('./bashRight\n')
-    time.sleep(0.1)
+    time.sleep(1)
     channel.close()
     client.close()
-    return 0
+    return {"Состояние": "Страница перелистулась вперёд"}
 
 @app.route('/pdfprevpage',  methods = ['POST'])
 def pdfprevpage():
@@ -99,7 +108,7 @@ def pdfprevpage():
     time.sleep(1)
     channel.close()
     client.close()
-    return 0
+    return {"Состояние": "Страница перелистнулась назад"}
 
 @app.route('/pdfquit',  methods = ['POST'])
 def quit():
@@ -113,7 +122,7 @@ def quit():
     time.sleep(1)
     channel.close()
     client.close()
-    return 0
+    return {"Состояние": "Файл закрыт"}
 
 @app.route('/pdfview/<fileName>')
 def pdfview(fileName):
@@ -125,6 +134,8 @@ def GetCourseRes(id):
     course = moodle_api.call("core_course_get_contents", courseid=id)
     course = json.dumps(course)
     course = json.loads(course)
+    course = res(course)
+    #return jsonify(course)
     return render_template('course.html',id = id, contents=course, count=0, count2=0)
 
 @app.route('/courses')
@@ -141,8 +152,6 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
     else:
-        print(str(request.form.get('login')))
-        print(str(request.form.get('password')))
         response = post(
             'https://eluniver.ugrasu.ru/login/token.php?username=' + str(request.form.get('login')) + '&password=' + str(request.form.get('password')) + '&service=moodle_mobile_app')
         response = response.json()
