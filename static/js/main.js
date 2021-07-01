@@ -1,4 +1,4 @@
-const url = document.body.path;
+const url = document.body.path
 alert(url)
 let pdfDoc = null,
   pageNum = 1,
@@ -78,8 +78,19 @@ const quit = () => {
   $.ajax({
     url: '/pdfquit',
     type: 'post',
+    success: function(response){
+      res = response
+      if(res.status = "Файл закрыт"){
+        history.back()
+      }
+    },
   });
-  document.dispatchEvent(Window.close())
+};
+const AlignPage = () => {
+  $.ajax({
+    url: '/pdfAlighn',
+    type: 'post',
+  });
 };
 // Get Document
 pdfjsLib
@@ -105,3 +116,4 @@ pdfjsLib
 document.querySelector('#prev-page').addEventListener('click', showPrevPage);
 document.querySelector('#next-page').addEventListener('click', showNextPage);
 document.querySelector('#quit').addEventListener('click', quit);
+document.addEventListener('popstate', quit)

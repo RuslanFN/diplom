@@ -9,6 +9,8 @@ from flask import Flask, render_template, jsonify, request
 from requests import post
 import moodle_api
 
+host = "192.168.50.178"
+
 app = Flask(__name__)
 moodle_api.URL = "https://eluniver.ugrasu.ru/"
 #moodle_api.KEY = "07b1af93609c52da25b89b043b456155"
@@ -53,14 +55,13 @@ def pdf():
     return transprt(fileName) #flask.redirect('/pdfview/' + fileName)
 
 def transprt(name):
-    host = "192.168.1.11"
     port = 22
     transport = paramiko.Transport((host, port))
     transport.connect(username='ruslan', password='Lnq134')
     sftp = paramiko.SFTPClient.from_transport(transport)
 
-    remotepath =  'Общедоступные/' + name + '.pdf'
-    localpath = './static/pdf/' + name + '.pdf'
+    remotepath ='Общедоступные/' + name + '.pdf'
+    localpath ='./static/pdf/' + name + '.pdf'
 
     #sftp.get(remotepath, localpath)
     sftp.put(localpath, remotepath)
@@ -84,7 +85,6 @@ def transprt(name):
 
 @app.route('/pdfnextpage',  methods = ['POST'])
 def pdfnextpage():
-    host = "192.168.1.11"
     port = 22
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -98,7 +98,6 @@ def pdfnextpage():
 
 @app.route('/pdfprevpage',  methods = ['POST'])
 def pdfprevpage():
-    host = "192.168.1.11"
     port = 22
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -112,7 +111,6 @@ def pdfprevpage():
 
 @app.route('/pdfquit',  methods = ['POST'])
 def quit():
-    host = "192.168.1.11"
     port = 22
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -122,21 +120,21 @@ def quit():
     time.sleep(1)
     channel.close()
     client.close()
-    return {"Состояние": "Файл закрыт"}
+    return {"status": "Файл закрыт"}
 
 @app.route('/pdfview/<fileName>')
 def pdfview(fileName):
     filename = fileName + '.pdf'
     return render_template('viewPDF.html', content=fileName)
 
-@app.route('/course/<id>')
+@app.route('/course/<id>/')
 def GetCourseRes(id):
     course = moodle_api.call("core_course_get_contents", courseid=id)
     course = json.dumps(course)
     course = json.loads(course)
     course = res(course)
     #return jsonify(course)
-    return render_template('course.html',id = id, contents=course, count=0, count2=0)
+    return render_template('course.html',id = id, contents=course)
 
 @app.route('/courses')
 def GetCourses():
@@ -146,7 +144,7 @@ def GetCourses():
     courses = json.loads(courses)
     return render_template('courses.html', contents=courses)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -169,4 +167,4 @@ with app.test_request_context():
     print(os.listdir("static/pdf"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
